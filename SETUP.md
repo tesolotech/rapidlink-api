@@ -153,10 +153,10 @@ if connectionString == "" {
 
 ```bash
 # Build the application
-go build -o url-shortener.exe
+go build -o rapidlink-api.exe
 
 # Run the application
-./url-shortener.exe
+./rapidlink-api.exe
 ```
 
 The application will:

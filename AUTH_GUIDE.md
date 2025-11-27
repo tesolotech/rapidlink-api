@@ -260,8 +260,8 @@ curl -X GET "http://localhost:8080/analytics?short_url=golang-repo" \
 go run main.go auth.go handlers.go database.go
 
 # Or build and run
-go build -o url-shortener
-./url-shortener
+go build -o rapidlink-api
+./rapidlink-api
 ```
 
 The server will start on `http://localhost:8080` with full JWT authentication support!

@@ -27,15 +27,16 @@ var (
 
 // User represents a user in the system
 type User struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	Username  string             `bson:"username" json:"username"`
-	Email     string             `bson:"email" json:"email"`
-	Password  string             `bson:"password" json:"-"` // Never return password in JSON
-	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
-	IsActive  bool               `bson:"is_active" json:"is_active"`
-    RefreshToken string             `bson:"refresh_token,omitempty" json:"-"` // Store hashed refresh token
-    RefreshTokenExpiry time.Time     `bson:"refresh_token_expiry,omitempty" json:"-"`
+	ID                 primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Username           string             `bson:"username" json:"username"`
+	Email              string             `bson:"email" json:"email"`
+	Password           string             `bson:"password" json:"-"` // Never return password in JSON
+	CreatedAt          time.Time          `bson:"created_at" json:"created_at"`
+	IsActive           bool               `bson:"is_active" json:"is_active"`
+	RefreshToken       string             `bson:"refresh_token,omitempty" json:"-"` // Store hashed refresh token
+	RefreshTokenExpiry time.Time          `bson:"refresh_token_expiry,omitempty" json:"-"`
 }
+
 // GenerateRefreshToken creates a new secure random refresh token
 func GenerateRefreshToken() (string, error) {
 	b := make([]byte, 32)
@@ -66,7 +67,7 @@ func SetRefreshToken(userID string, refreshToken string, expiry time.Time) error
 	hashed := HashRefreshToken(refreshToken)
 	update := bson.M{
 		"$set": bson.M{
-			"refresh_token": hashed,
+			"refresh_token":        hashed,
 			"refresh_token_expiry": expiry,
 		},
 	}
@@ -156,7 +157,7 @@ func GenerateToken(user *User) (string, time.Time, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "url-shortener",
+			Issuer:    "rapidlink-api",
 		},
 	}
 

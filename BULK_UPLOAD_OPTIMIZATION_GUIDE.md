@@ -398,12 +398,12 @@ const (
 ```bash
 # Clone and build
 git clone <repository>
-cd go-url-shortener
+cd go-rapidlink-api
 go mod tidy
 go build .
 
 # Start server
-./url-shortener.exe
+./rapidlink-api.exe
 ```
 
 ### 2. CSV Format

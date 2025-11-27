@@ -67,7 +67,7 @@ export SERVER_IDLE_TIMEOUT="60s"
 # docker-compose.yml
 version: '3.8'
 services:
-  url-shortener:
+  rapidlink-api:
     build: .
     ports:
       - "8080:8080"
@@ -168,29 +168,29 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o url-shortener .
+RUN CGO_ENABLED=0 GOOS=linux go build -o rapidlink-api .
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
-COPY --from=builder /app/url-shortener .
+COPY --from=builder /app/rapidlink-api .
 EXPOSE 8080
 
-CMD ["./url-shortener"]
+CMD ["./rapidlink-api"]
 ```
 
 ### **Build and Run:**
 ```bash
 # Build optimized binary
-go build -ldflags="-s -w" -o url-shortener
+go build -ldflags="-s -w" -o rapidlink-api
 
 # Or with Docker
-docker build -t url-shortener .
+docker build -t rapidlink-api .
 docker run -p 8080:8080 \
   -e MONGODB_URI="mongodb://localhost:27017" \
   -e JWT_SECRET="your-secret" \
-  url-shortener
+  rapidlink-api
 ```
 
 ## 📈 Monitoring & Metrics

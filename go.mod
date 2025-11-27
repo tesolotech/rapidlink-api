@@ -1,4 +1,4 @@
-module url-shortener
+module rapidlink-api
 
 go 1.24.0
 
