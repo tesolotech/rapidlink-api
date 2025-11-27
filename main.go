@@ -71,6 +71,8 @@ func main() {
 
 	// Protected URL shortening endpoint
 	r.HandleFunc("/url", JWTMiddleware(shorten)).Methods("PUT")
+	// Protected URL delete endpoint
+	r.HandleFunc("/url", JWTMiddleware(deleteShortURL)).Methods("DELETE")
 
 	// Protected bulk upload endpoint
 	r.HandleFunc("/bulk", JWTMiddleware(bulkShorten)).Methods("POST")

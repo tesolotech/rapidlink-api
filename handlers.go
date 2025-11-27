@@ -1293,3 +1293,57 @@ func generateShortCodeForBulk(longURL, customAlias string) (string, error) {
 	code := generateReadableCode(longURL)
 	return code, nil
 }
+
+// deleteShortURL handles DELETE /url requests for deleting a user's short URL
+func deleteShortURL(w http.ResponseWriter, r *http.Request) {
+	clientIP := getClientIP(r)
+
+	// Only allow DELETE method
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract user ID from JWT context
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		logSecurityEvent("UNAUTHORIZED_DELETE_ACCESS", "", clientIP, r.UserAgent(),
+			"Unauthorized delete attempt", "WARN")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Parse short_url from query or JSON body
+	shortURL := r.URL.Query().Get("short_url")
+	if shortURL == "" {
+		// Try to parse from JSON body
+		var req struct {
+			ShortURL string `json:"short_url"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
+			shortURL = req.ShortURL
+		}
+	}
+	if shortURL == "" {
+		http.Error(w, "Missing short_url parameter", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Find and delete the URL if it belongs to the user
+	res, err := DB.Collection.UpdateOne(ctx, bson.M{"short_url": shortURL, "user_id": userID}, bson.M{"$set": bson.M{"is_active": false}})
+	if err != nil {
+		log.Printf("error deleting short URL: %v", err)
+		http.Error(w, "Failed to delete short URL", http.StatusInternalServerError)
+		return
+	}
+	if res.MatchedCount == 0 {
+		http.Error(w, "Short URL not found or not owned by user", http.StatusNotFound)
+		return
+	}
+
+	logSecurityEvent("SHORT_URL_DELETED", userID, clientIP, r.UserAgent(), "Short URL deleted: "+shortURL, "INFO")
+	w.WriteHeader(http.StatusNoContent)
+}
